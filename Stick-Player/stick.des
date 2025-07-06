@@ -1,0 +1,31 @@
+6
+stick5
+stick5 0 
+4
+stick4 player1rm1 1
+stick4 player2rm2 0
+stick3 player1rm2 1
+stick3 player2rm2 0
+stick4 0 
+4
+stick2 player2rm2 0
+stick3 player1rm1 1
+stick2 player1rm2 1
+stick3 player2rm1 0
+stick3 0 
+4
+stick2 player1rm1 1
+stick1 player2rm2 0
+stick1 player1rm2 1
+stick2 player2rm1 0
+stick2 0 
+4
+stick1 player1rm1 1
+stick0 player2rm2 0
+stick0 player1rm2 1
+stick1 player2rm1 0
+stick1 0 
+2
+stick0 player2rm1 0
+stick0 player1rm1 1
+stick0 1 0
