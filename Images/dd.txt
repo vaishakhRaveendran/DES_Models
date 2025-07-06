@@ -1,0 +1,213 @@
+
+
+\begin{algorithm}
+\caption{$CPC(G, \lambda^*)$: CPC Model Construction}
+\label{alg:cpc}
+\KwIn{$\{G = (V, E)\}$; $\lambda^*$}
+\KwOut{$\Theta^*$, $F(\theta_i^*)$, $G(\theta_i^*)$, $\forall\theta_i^* \in \Theta^*$}
+\textbf{Initialise: }$V^- = V \setminus \lambda^*$; $\Theta^* = \emptyset$; $i = 1$; $k = 1$
+\\
+\tcc{Step 1: identifying capacity providers}
+\While{$k \leq |\lambda^*|$}{
+    $\theta_i^* = \{\lambda^*(k)\}$; $k$++;\\
+    \While{$pre(\lambda^*(k)) = \{\lambda^*(k-1)\}$}{
+        $\theta_i^* = \theta_i^* \cup \{\lambda^*(k)\}$; $k$++;
+    }
+    $\Theta^* = \Theta^* \cup \theta_i^*$; $i$++\;
+}
+\tcc{Step 2: identifying capacity consumers}
+\For{$i = 1$; $i < |\Theta^*|$; $i$++}{
+    $F(\theta_i^*) = anc(\theta_{i+1}^*) \cap V^-$;\\
+    $G(\theta_i^*) = \bigcup_{v_j \in F(\theta_i^*)} \{C(v_j) \cap V^-\}$;\\
+    $V^- = V^- \setminus F(\theta_i^*)$;
+}
+\Return{$\{\Theta^*$; $F(\theta_i^*)$, $G(\theta_i^*)$, $\forall\theta_i^* \in \Theta^*\}$}\;
+\end{algorithm}
+
+\begin{algorithm}
+\caption{$EA(\Theta^*, \Theta)$: Priority Assignment}
+\label{alg:priorityassign}
+\KwIn{$\Theta^*$, $\Theta$}
+\KwOut{$p_j$, $\forall v_j \in \Theta^* \cup \Theta$}
+\textbf{Initialise: }$p_j = -1$, $\forall v_j \in \Theta^* \cup \Theta$; $p = p^{max}$\\
+\tcc{Assignment Rule 1.}
+$\forall v_j \in \Theta^*$, $p_j = p$; \quad $p = p - 1$;\\
+\tcc{Assignment Rule 2.}
+\For{each $\theta^*_i \in \Theta^*$, in topological order}{
+    \While{$F(\theta^*_i) \neq \emptyset$}{
+        \tcc{Find the longest local path in $F(\theta^*_i)$.}
+        $v_e, v_j \in F(\theta^*_i)$;\\
+        $v_e = \arg\max\{l_e(F(\theta^*_i))|\text{suc}(v_e) = \emptyset\}$;\\
+        $\lambda_{v_e} = v_e \cup \lambda_{v_j}, \arg\max\{l_j(F(\theta^*_i))|\forall v_j \in \text{pre}(v_e)\}$;\\
+        \If{$|\text{pre}(v_j)| > 1, \exists v_j \in \lambda_{v_c}$}{
+            $\{\Theta^{*'}, \Theta'\} = CPC(F(\theta^*_i), \lambda_{v_e})$;\\
+            $EA(\Theta^{*'}, \Theta')$;\\
+            \textbf{break}\;
+        }
+        \Else{
+            \tcc{Assignment Rule 3.}
+            $\forall v_j \in \lambda_{v_c}$, $p_j = p$; \quad $p = p - 1$;\\
+            $F(\theta^*_i) = F(\theta^*_i) \setminus \lambda_{v_c}$\;
+        }
+    }
+}
+\Return{$\{p_j, \forall v_j \in \Theta^* \cup \Theta\}$}\;
+\end{algorithm}
+\BlankLine
+
+
+
+\begin{algorithm}
+\caption{Construction of the P-WDM}
+\label{alg:pwdm}
+\KwIn{$V_x$, $m$}
+\KwOut{$WD^m_x$, $PPD^m_x$}
+\textbf{Initialise: }$t \gets 0$, $WD^m_x \gets \emptyset$, $PPD^m_x \gets \emptyset$
+\\
+\For{each $v_i \in V_x$}{
+    compute $f(v_i)$ by Equation (3)\;
+}
+\While{$PD(V_x, t) > 0$}{
+    $WD^m_x \gets WD^m_x \cup PD(V_x, t)$\;\\
+    $PPD^m_x \gets PPD^m_x \cup PPL(V_x, t)$\;\\
+    $t \gets t + 1$\;
+}
+\Return{$WD^m_x$, $PPD^m_x$}\;
+\end{algorithm}
+\BlankLine
+
+
+\begin{algorithm}
+\caption{Peak Power-Aware Accumulation of P-WDMs}
+\label{alg:poweraware}
+\KwIn{$WD^{m1}_a$, $WD^{m2}_b$, $m$, $Chip\_TDP$}
+\KwOut{$WD^m$, $I_b$, $PPD^m$}
+\textbf{Initialise: }$WD^m \gets WD^{m1}_a$, $I_b \gets 0$, $PPD^m \gets PPD^{m1}_a$, $t \gets 0$\\
+\While{$WD^{m2}_b(t) > 0$}{
+    \If{$WD^{m1}_a(t) + WD^{m2}_b(t) \leq m$ \textbf{and} \\
+       \quad $PPD^{m1}_a(t) + PPD^{m2}_b(t) \leq Chip\_TDP$}{
+        $WD^m(t) \gets WD^{m1}_a(t) + WD^{m2}_b(t)$\;\\
+        $PPD^m(t) \gets PPD^{m1}_a(t) + PPD^{m2}_b(t)$\;
+    }
+    \Else{
+        $I_b \gets I_b + 1$\;
+    }
+    $t \gets t + 1$\;
+}
+\Return{$WD^m$, $I_b$, $PPD^m$}\;
+\end{algorithm}
+\BlankLine
+
+\begin{algorithm}
+\caption{Offline Core Assignment for Multi-DAGs}
+\label{alg:offlinecore}
+\KwIn{$\Gamma$, $m$}
+\KwOut{$nop_{x,j}$, $\forall J_{x,j} \in \Gamma^H$}
+\textbf{Initialise: }$WD^m = \emptyset$\\
+get and sort $\Gamma^H$ by (i) earliest release time first and (ii) highest priority first;\\
+\For{each $J_{x,j} \in \Gamma^H$}{
+    $R^{\circ}_{x,j} = \infty$;\\
+    \For{$i = m \ldots 1$}{
+        get $WD^i_{x,j}$ by Algorithm 3;\\
+        $(WD^m, I_{x,j}) = WD^m \oplus WD^i_{x,j}$;\\
+        compute $R_{x,j}$ by Equation (2) with $i$ cores;\\
+        $R^{\circ}_{x,j} = R_{x,j} + I_{x,j}$;
+        \If{$R^{\circ}_{x,j} < R^{\diamond}_{x,j}$}{
+            $R^{\diamond}_{x,j} = R^{\circ}_{x,j}$\;
+        }
+        \Else{
+            reset $WD^m$\;
+        }
+    }
+    \If{$R^{\circ}_{x,j} > d_{x,j}$}{
+        \Return{infeasible}\;
+    }
+}
+\Return{$\{nop_{x,j}, \forall J_{x,j} \in \Gamma^H\}$}\;
+\end{algorithm}
+\BlankLine
+
+\section{Algorithm Discussion}
+
+Our proposed peak power-aware scheduling framework comprises five interconnected algorithms that work together to construct valid schedules for sporadic DAG tasks while satisfying both timing and power constraints. The holistic approach considers both task-level parallelism within each DAG and system-level resource allocation across multiple DAGs.
+
+\subsection{Overview of the Approach}
+
+Algorithm~\ref{alg:offlinecore} serves as the top-level scheduler, which takes a set of sporadic DAGs $\Gamma$ and available processing cores $m$ as input. The algorithm begins by identifying all jobs released within a hyper-period and sorts them according to a well-defined strategy combining earliest release time and highest priority first. This sorting mechanism ensures that jobs with tighter temporal constraints are given precedence in the allocation process, which is crucial for maintaining real-time guarantees.
+
+For each job $J_{x,j}$ in the sorted set $\Gamma^H$, the algorithm iteratively searches for the optimal core configuration that minimizes response time while meeting deadlines. This search begins from the maximum available cores $m$ and decreases incrementally to find the most efficient allocation that satisfies both timing and power constraints.
+
+\subsection{Critical Path Capacity Model Construction}
+
+The foundation of our approach is Algorithm~\ref{alg:cpc}, which constructs the Critical Path Capacity (CPC) model for each DAG. Given a graph $G=(V,E)$ and its critical path $\lambda^*$, the CPC model transforms the DAG into a structured set of capacity providers $\Theta^*$ and capacity consumers.
+
+The construction process consists of two key steps:
+\begin{enumerate}
+    \item \textbf{Identifying capacity providers}: The algorithm traverses the critical path $\lambda^*$ and groups consecutive nodes into provider sets $\theta_i^*$. Each provider set represents a segment of the critical path where consecutive tasks have direct precedence relationships.
+    
+    \item \textbf{Identifying capacity consumers}: For each provider set $\theta_i^*$, the algorithm identifies two sets of consumers: $F(\theta_i^*)$, which contains off-critical path nodes that are ancestors of the next provider, and $G(\theta_i^*)$, which consists of descendants of these ancestors that do not belong to the critical path.
+\end{enumerate}
+
+This model creates a precise mapping between critical path tasks (providers) and non-critical tasks (consumers), enabling intelligent capacity sharing without extending the length of the critical path. The CPC model essentially partitions the DAG into segments where parallel execution can be safely exploited.
+
+\subsection{Priority Assignment Mechanism}
+
+With the CPC model constructed, Algorithm~\ref{alg:priorityassign} assigns execution priorities to all tasks within the DAG. The priority assignment follows three hierarchical rules:
+
+\begin{enumerate}
+    \item Tasks on the critical path receive the highest priorities, ensuring their timely execution.
+    
+    \item For tasks in consumer sets $F(\theta_i^*)$, the algorithm identifies the longest local paths and processes them in topological order.
+    
+    \item If a local path contains nodes with multiple predecessors, the algorithm recursively applies the CPC construction and priority assignment; otherwise, it assigns decreasing priorities to tasks along the path.
+\end{enumerate}
+
+This priority scheme maximizes the parallelism of non-critical nodes while minimizing their potential to delay the completion of the critical path. By carefully balancing these competing objectives, the algorithm ensures efficient utilization of available cores without compromising the overall response time of the DAG.
+
+\subsection{Peak Workload Distribution Model}
+
+Algorithm~\ref{alg:pwdm} constructs the Peak Workload Distribution Model (P-WDM) for each DAG given a set of tasks $V_x$ and available cores $m$. This model captures the evolution of workload over time, representing both the required number of cores and the power consumption at each time instant.
+
+The algorithm proceeds as follows:
+\begin{enumerate}
+    \item For each task $v_i \in V_x$, it computes the finish time $f(v_i)$ using Equation (3).
+    
+    \item Starting from time $t=0$, it iteratively computes the parallel degree $PD(V_x, t)$ and peak power load $PPL(V_x, t)$ at each time instant.
+    
+    \item The P-WDM is constructed by recording these values until the workload is completely processed.
+\end{enumerate}
+
+The resulting model $WD^m_x$ represents the core requirements over time, while $PPD^m_x$ captures the corresponding peak power demands. These models are essential for analyzing resource needs and ensuring that power constraints are not violated during execution.
+
+\subsection{Peak Power-Aware Workload Accumulation}
+
+When multiple DAGs execute concurrently, their workload models must be combined while respecting both core availability and power constraints. Algorithm~\ref{alg:poweraware} performs this accumulation, taking the P-WDMs of two DAGs ($WD^{m1}_a$ and $WD^{m2}_b$), available cores $m$, and chip thermal design power (TDP) as input.
+
+The workload accumulation follows three critical principles:
+\begin{enumerate}
+    \item The workload distribution of $WD^{m1}_a$ remains unaffected by $WD^{m2}_b$, reflecting a non-preemptive scheduling scheme where higher-priority tasks execute without interference.
+    
+    \item The workload of $WD^{m2}_b$ is added only if sufficient cores are available, preventing offset effects due to core competition.
+    
+    \item The peak power load of $WD^{m2}_b$ is added only if the combined power consumption does not exceed the chip's TDP, ensuring thermal constraints are satisfied.
+\end{enumerate}
+
+If these conditions are met, the workloads are successfully combined; otherwise, an interference counter $I_b$ is incremented, indicating the delay that the second DAG must incur before its workload can be accommodated.
+
+\subsection{System-Level Scheduling}
+
+Returning to Algorithm~\ref{alg:offlinecore}, the system-level scheduler uses the P-WDMs and workload accumulation mechanism to determine the optimal core allocation for each job. For a given job $J_{x,j}$, the algorithm:
+\begin{enumerate}
+    \item Constructs its P-WDM for different core counts using Algorithm~\ref{alg:pwdm}.
+    
+    \item Attempts to accumulate this workload with the existing system workload using Algorithm~\ref{alg:poweraware}.
+    
+    \item Computes the resulting response time $R_{x,j}$ and adds any interference delay $I_{x,j}$.
+    
+    \item Selects the core allocation that minimizes the total response time $R^{\circ}_{x,j}$.
+\end{enumerate}
+
+If the minimum achievable response time exceeds the job's deadline $d_{x,j}$, the algorithm declares the task set infeasible; otherwise, it proceeds to the next job. Upon successful completion, the algorithm returns the optimal core allocation $nop_{x,j}$ for all jobs in the hyper-period.
+
+ The CPC model and priority assignment ensure efficient parallelism within DAGs, the P-WDM captures workload and power profiles, and the accumulation method enforces system-wide constraints while minimizing interference.
+Our peak power-aware scheduling approach represents a comprehensive solution for real-time scheduling of sporadic DAG tasks in multi-core systems with power constraints. By integrating critical path analysis, workload distribution modeling, and power-aware accumulation, the algorithm effectively balances performance optimization with constraint satisfaction, resulting in schedules that are both efficient and feasible.

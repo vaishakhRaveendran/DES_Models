@@ -1,0 +1,11 @@
+2
+player1
+player1 0 
+2
+player2 player1rm2 1
+player2 player1rm1 1
+player2 1 
+2
+player1 player2rm2 0
+player1 player2rm1 0
+

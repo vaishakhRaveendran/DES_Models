@@ -1,0 +1,38 @@
+digraph DAG {
+    rankdir=LR;
+    "START" [shape=point, style=invis];
+    "START" -> "v1";
+    "v12" [label="v12\nExec Time: 3"];
+    "v12" -> "v14" [label="t"];
+    "v14" [label="v14\nExec Time: 2"];
+    "v3" [label="v3\nExec Time: 2"];
+    "v3" -> "v7" [label="t"];
+    "v10" [label="v10\nExec Time: 3"];
+    "v10" -> "v11" [label="t"];
+    "v10" -> "v12" [label="t"];
+    "v2" [label="v2\nExec Time: 4"];
+    "v2" -> "v6" [label="t"];
+    "v6" [label="v6\nExec Time: 3"];
+    "v6" -> "v7" [label="t"];
+    "v6" -> "v8" [label="t"];
+    "v6" -> "v9" [label="t"];
+    "v11" [label="v11\nExec Time: 2"];
+    "v11" -> "v13" [label="t"];
+    "v7" [label="v7\nExec Time: 4"];
+    "v7" -> "v10" [label="t"];
+    "v5" [label="v5\nExec Time: 1"];
+    "v5" -> "v9" [label="t"];
+    "v13" [label="v13\nExec Time: 1"];
+    "v13" -> "v14" [label="t"];
+    "v4" [label="v4\nExec Time: 3"];
+    "v4" -> "v8" [label="t"];
+    "v1" [label="v1\nExec Time: 5"];
+    "v1" -> "v2" [label="t"];
+    "v1" -> "v3" [label="t"];
+    "v1" -> "v4" [label="t"];
+    "v1" -> "v5" [label="t"];
+    "v8" [label="v8\nExec Time: 1"];
+    "v8" -> "v11" [label="t"];
+    "v9" [label="v9\nExec Time: 1"];
+    "v9" -> "v12" [label="t"];
+}

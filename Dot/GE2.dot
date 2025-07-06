@@ -1,0 +1,38 @@
+digraph DAG {
+    rankdir=LR;
+    "START" [shape=point, style=invis];
+    "START" -> "u1";
+    "u12" [label="u12\nExec Time: 1"];
+    "u12" -> "u14" [label="t"];
+    "u14" [label="u14\nExec Time: 3"];
+    "u8" [label="u8\nExec Time: 5"];
+    "u8" -> "u11" [label="t"];
+    "u2" [label="u2\nExec Time: 3"];
+    "u2" -> "u6" [label="t"];
+    "u4" [label="u4\nExec Time: 4"];
+    "u4" -> "u8" [label="t"];
+    "u6" [label="u6\nExec Time: 4"];
+    "u6" -> "u7" [label="t"];
+    "u6" -> "u8" [label="t"];
+    "u6" -> "u9" [label="t"];
+    "u11" [label="u11\nExec Time: 3"];
+    "u11" -> "u13" [label="t"];
+    "u3" [label="u3\nExec Time: 1"];
+    "u3" -> "u7" [label="t"];
+    "u7" [label="u7\nExec Time: 4"];
+    "u7" -> "u10" [label="t"];
+    "u5" [label="u5\nExec Time: 2"];
+    "u5" -> "u9" [label="t"];
+    "u13" [label="u13\nExec Time: 2"];
+    "u13" -> "u14" [label="t"];
+    "u9" [label="u9\nExec Time: 2"];
+    "u9" -> "u12" [label="t"];
+    "u1" [label="u1\nExec Time: 4"];
+    "u1" -> "u2" [label="t"];
+    "u1" -> "u3" [label="t"];
+    "u1" -> "u4" [label="t"];
+    "u1" -> "u5" [label="t"];
+    "u10" [label="u10\nExec Time: 3"];
+    "u10" -> "u11" [label="t"];
+    "u10" -> "u12" [label="t"];
+}
